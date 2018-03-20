@@ -1,2 +1,12 @@
 # WakaTimeMailAnalyzer
-analyzes IMAP mailbox and weekly WakaTime mails to extract projects data and summarize in area chart
+This NodeJS script will connect to IMAP mailbox and parse all WakaTime weekly emails. Parsed data is accumulated into single area chart.
+
+To use please create credentials.js with following contents:
+```
+module.exports = {
+    inbox: '<imap inbox folder>',
+    user: '<mailbox name>',
+    password: '<your password>',
+    host: '<imap server address>'
+}
+```
