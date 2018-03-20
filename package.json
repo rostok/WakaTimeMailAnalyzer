@@ -1,16 +1,32 @@
 {
-  "name": "waka-imap",
+  "name": "WakaTimeMailAnalyzer",
   "version": "1.0.0",
   "description": "builds and shows statistics based on WakaTime weekly reports",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "url": "https://github.com/rostok/WakaTimeMailAnalyzer/",
   "author": "rostok",
   "license": "MIT",
   "dependencies": {
     "imap": "^0.8.19",
     "imap-simple": "^4.0.0",
     "mathjs": "^4.0.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rostok/WakaTimeMailAnalyzer.git"
+  },
+  "keywords": [
+    "wakatime",
+    "charts",
+    "mail",
+    "imap",
+    "weekly"
+  ],
+  "bugs": {
+    "url": "https://github.com/rostok/WakaTimeMailAnalyzer/issues"
+  },
+  "homepage": "https://github.com/rostok/WakaTimeMailAnalyzer#readme"
 }
