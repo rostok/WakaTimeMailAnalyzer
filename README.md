@@ -10,3 +10,6 @@ module.exports = {
     host: '<imap server address>'
 }
 ```
+
+In addition projects can be filtered by total time spent. This is set via ```config.filterMinimalHours``` variable.
+
