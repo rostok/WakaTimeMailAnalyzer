@@ -1,0 +1,16 @@
+{
+  "name": "waka-imap",
+  "version": "1.0.0",
+  "description": "builds and shows statistics based on WakaTime weekly reports",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "rostok",
+  "license": "MIT",
+  "dependencies": {
+    "imap": "^0.8.19",
+    "imap-simple": "^4.0.0",
+    "mathjs": "^4.0.1"
+  }
+}
