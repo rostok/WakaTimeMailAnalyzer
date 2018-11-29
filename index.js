@@ -7,21 +7,27 @@ var credentials = require('./credentials');
 
 var config = {
   inbox: credentials.inbox, 
-  filterMinimalHours: 10,
+  filterMinimalHours: 5,
   imap: {
     user: credentials.user, 
     password: credentials.password, 
     host: credentials.host, 
-    port: 994,
+    port: 993,
     tls: true,
     authTimeout: 3000
   }
 };
 
+// in case password is empty ask for it safely
+if (config.imap.password=='') {
+  var readlineSync = require('readline-sync');
+  config.imap.password = readlineSync.question('inbox password:', { hideEchoBack: true });
+}
+
 // this will hold projects, single project has 'total' property with total number of hours and week-end dates properties with hours spend on that weeks  
 var projects = {};
 
-/// silly little function
+// silly little function
 function betw(src, beg, end) {
   src = src.split(beg);
   if (src.length <= 1) return src[0];
@@ -139,15 +145,27 @@ imaps.connect(config).then(function (connection) {
             var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
             chart.draw(data, options);
           }
-        </script>
+        </script>`;
+      
+      html += `              
       </head>
       <body>
         <div id="chart_div" style="width: 100%; height: 500px;"></div>
-      </body>
+        <div>`;
+
+      projectNames.map( p=> html += "<br>"+p+" : "+Math.round(projects[p].total,1) );
+
+      html += `              
+        </div>
+    </body>
     </html>`;
       fs.writeFileSync("chart.html", html, {flag:"w"});
       console.log("saved results to chart.html");
-      process.exit();
+      console.log("opening browser");
+      var opn = require('opn');
+      opn("chart.html", {app: 'chrome'}).then(() => {
+      	process.exit();
+	  });
     });
   });
 });
