@@ -6,7 +6,7 @@ To use please create credentials.js with following contents:
 module.exports = {
     inbox: '<imap inbox folder>',
     user: '<mailbox name>',
-    password: '<your password>',
+    password: '<your password>', // leave empty if afraid
     host: '<imap server address>'
 }
 ```
