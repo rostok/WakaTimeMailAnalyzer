@@ -1,13 +1,12 @@
 var math = require('mathjs');
 var imaps = require('imap-simple');
 var fs = require('fs');
-
-
 var credentials = require('./credentials');
 
 var config = {
   inbox: credentials.inbox, 
-  filterMinimalHours: 5,
+  filterMinimalHours: 4,
+  debug: process.argv.join(' ').includes(" -debug"),
   imap: {
     user: credentials.user, 
     password: credentials.password, 
@@ -58,6 +57,8 @@ imaps.connect(config).then(function (connection) {
         var s = res.parts.filter(function (part) {
           return part.which === 'HEADER';
         })[0].body.subject[0];
+
+        if (config.debug) console.log (s+" / " + res.attributes.date.toISOString());
         var t = res.parts.filter(function (part) {
           return part.which === 'TEXT';
         })[0].body;
@@ -91,6 +92,7 @@ imaps.connect(config).then(function (connection) {
           };
           projects[d[0]].total += d[1];
           projects[d[0]][w] = d[1];
+          if (config.debug) console.log("\t"+d[0]+":"+d[1]);
         })
       });
     }).then(() => {
