@@ -42,7 +42,8 @@ imaps.connect(config).then(function (connection) {
   return connection.openBox(config.inbox).then(function () {
     console.log("connected.");
     var searchCriteria = [
-      ['SUBJECT', 'WakaTime'],
+      ['FROM', 'WakaTime'],
+      ['SUBJECT', 'weekly'],
       ['!SUBJECT', 'no coding activity']
     ];
 
