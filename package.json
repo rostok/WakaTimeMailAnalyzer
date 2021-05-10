@@ -11,7 +11,7 @@
   "dependencies": {
     "imap": "^0.8.19",
     "imap-simple": "^4.3.0",
-    "mathjs": "^5.4.2",
+    "mathjs": "^9.3.2",
     "opn": "^5.4.0",
     "readline-sync": "^1.4.9"
   }
