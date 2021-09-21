@@ -1,3 +1,5 @@
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+
 var math = require('mathjs');
 var imaps = require('imap-simple');
 var fs = require('fs');
@@ -5,7 +7,7 @@ var credentials = require('./credentials');
 
 var config = {
   inbox: credentials.inbox, 
-  filterMinimalHours: 4,
+  filterMinimalHours: 2,
   debug: process.argv.join(' ').includes(" -debug"),
   imap: {
     user: credentials.user, 
@@ -13,7 +15,7 @@ var config = {
     host: credentials.host, 
     port: 993,
     tls: true,
-    authTimeout: 3000
+    authTimeout: 10000
   }
 };
 
@@ -44,6 +46,7 @@ imaps.connect(config).then(function (connection) {
     var searchCriteria = [
       ['FROM', 'WakaTime'],
       ['SUBJECT', 'weekly'],
+//      ['SUBJECT', 'WakaTime'],
       ['!SUBJECT', 'no coding activity']
     ];
 
@@ -87,7 +90,7 @@ imaps.connect(config).then(function (connection) {
           q = q.replace("secs", "+");
           q = q.replace("sec", "+");
           q += "0";
-          d[1] = math.eval(q) / 3600;
+          d[1] = math.evaluate(q) / 3600;
           if (typeof projects[d[0]] === 'undefined') projects[d[0]] = {
             total: 0
           };
@@ -118,6 +121,7 @@ imaps.connect(config).then(function (connection) {
 
       header = Object.keys(projects).sort().filter(p => projects[p].total > config.filterMinimalHours);
       projectNames = header.concat();
+      header = header.map(p=>p+" : "+Number((projects[p].total).toFixed(1)));
       header.unshift('week');
       header = header.map(p => `'${p}'`).join(',');
       html += `[` + header + `],\n`;
@@ -140,7 +144,9 @@ imaps.connect(config).then(function (connection) {
     
             var options = {
               title: 'WakaTime projects',
-              hAxis: {title: 'Week',  titleTextStyle: {color: '#333'}},
+              //hAxis: {title: 'Week',  titleTextStyle: {color: '#333'}},
+              'chartArea': {left:'5%', 'width': '75%', 'height': '80%'},
+              focusTarget: 'category',
               vAxis: {minValue: 0},
               isStacked: true
             };
@@ -153,10 +159,10 @@ imaps.connect(config).then(function (connection) {
       html += `              
       </head>
       <body>
-        <div id="chart_div" style="width: 100%; height: 500px;"></div>
+        <div id="chart_div" style="width: 100%; height: 800px;"></div>
         <div>`;
 
-      projectNames.map( p=> html += "<br>"+p+" : "+Math.round(projects[p].total,1) );
+      //projectNames.map( p=> html += "<br>"+p+" : "+Math.round(projects[p].total,1) );
 
       html += `              
         </div>
@@ -166,7 +172,7 @@ imaps.connect(config).then(function (connection) {
       console.log("saved results to chart.html");
       console.log("opening browser");
       var opn = require('opn');
-      opn("chart.html", {app: 'chrome'}).then(() => {
+      opn(__dirname+"/chart.html", {app: 'chrome'}).then(() => {
       	process.exit();
 	  });
     });

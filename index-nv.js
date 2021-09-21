@@ -90,7 +90,7 @@ imaps.connect(config).then(function (connection) {
           q = q.replace("secs", "+");
           q = q.replace("sec", "+");
           q += "0";
-          d[1] = math.eval(q) / 3600;
+          d[1] = math.evaluate(q) / 3600;
           if (typeof projects[d[0]] === 'undefined') projects[d[0]] = {
             total: 0
           };
@@ -205,7 +205,7 @@ imaps.connect(config).then(function (connection) {
       console.log("saved results to chart.html");
       console.log("opening browser");
       var opn = require('opn');
-      opn("chart-nv.html", {app: 'chrome'}).then(() => {
+      opn(__dirname+"chart-nv.html", {app: 'chrome'}).then(() => {
       	process.exit();
 	  });
     });
