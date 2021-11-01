@@ -1,0 +1,56 @@
+<html>
+
+<head>
+  <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src='data.js'></script>
+  <script type="text/javascript">
+    var chart;
+
+    function plotdata(data) {
+      google.charts.load('current', {
+        'packages': ['corechart']
+      });
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var vdata = google.visualization.arrayToDataTable(data);
+
+        var options = {
+          title: 'WakaTime projects',
+          //hAxis: {title: 'Week',  titleTextStyle: {color: '#333'}},
+          'chartArea': {
+            left: '5%',
+            'width': '75%',
+            'height': '80%'
+          },
+          focusTarget: 'category',
+          vAxis: {
+            minValue: 0
+          },
+          isStacked: true
+        };
+
+        chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+        chart.draw(vdata, options);
+      }
+    }
+
+    plotdata(data.Projects);
+  </script>
+</head>
+
+<body>
+  <div id='sets'></div>
+  <script>
+    Object.keys(data).forEach(k=>{
+      var a = $(`<a href=#>${k}</a>`)
+      $(a).click(()=>plotdata(data[k]));
+      $("div#sets").append(a).append(" / ");
+    })
+  </script>
+  <div id="chart_div" style="width: 100%; height: 800px;"></div>
+  <div id="summary"></div>
+</body>
+
+</html>

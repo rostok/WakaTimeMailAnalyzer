@@ -1,0 +1,83 @@
+<html>
+
+<head>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.css" rel="stylesheet">
+  <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+  <script src='https://d3js.org/d3.v3.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.js'></script>
+  <script src='data.js'></script>
+  <script type="text/javascript">
+    var chart;
+
+    function plotdata(data) {
+      var arr = [];
+      var tickVals = [];
+      for (var ki = 1; ki < data[0].length; ki++) {
+        var va = [];
+        for (var vi = 1; vi < data.length; vi++) {
+          va[va.length] = [data[vi][0], data[vi][ki]];
+          if (vi % 3 == 0) tickVals[vi - 1] = (new Date(data[vi][0])).valueOf();
+        }
+        var o = {
+          key: data[0][ki],
+          values: va
+        };
+        arr[arr.length] = o;
+      }
+
+      function patience() {
+        if (typeof chart !== 'undefined') {
+          chart.xAxis.rotateLabels(-30);
+          chart.update();
+        } else
+          setTimeout(patience, 250);
+      }
+
+      nv.addGraph(function () {
+        chart = nv.models.stackedAreaChart()
+          .x(function (d) {
+            return (new Date(d[0])).valueOf()
+          })
+          .y(function (d) {
+            return parseFloat(d[1])
+          })
+          .useInteractiveGuideline(true)
+          .clipEdge(true);
+        chart.xAxis
+          //.tickValues(tickVals)
+          .tickFormat(function (d) {
+            //console.log("xAxis",d); 
+            return d3.time.format('%Y-%m-%d')(new Date(d))
+          });
+        chart.yAxis
+          .tickFormat(d3.format(',.0f'));
+
+        d3.select('#chart_div svg')
+          .datum(arr)
+          .transition().duration(500).call(chart);
+
+        nv.utils.windowResize(chart.update);
+        patience();
+
+        return chart;
+      });
+
+    }
+    plotdata(data.Projects);
+  </script>
+</head>
+
+<body>
+  <div id='sets'></div>
+  <script>
+    Object.keys(data).forEach(k=>{
+      var a = $(`<a href=#>${k}</a>`)
+      $(a).click(()=>plotdata(data[k]));
+      $("div#sets").append(a).append(" / ");
+    })
+  </script>
+  <div id='chart_div' style='width: 100%'><svg style='background-color:#eee;width:100%;height:500px'></svg></div>
+  <div id='summary'></div>
+</body>
+
+</html>
