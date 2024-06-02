@@ -1,6 +1,6 @@
 {
   "name": "waka-imap",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "builds and shows statistics based on WakaTime weekly reports",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "dependencies": {
     "imap": "^0.8.19",
     "imap-simple": "^4.3.0",
-    "mathjs": "^9.3.2",
+    "mathjs": "^13.0.0",
     "opn": "^5.5.0",
     "readline-sync": "^1.4.9"
   }

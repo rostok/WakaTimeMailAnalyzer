@@ -1,10 +1,11 @@
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+//process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 var math = require('mathjs');
 var imaps = require('imap-simple');
 var fs = require('fs');
 var opn = require('opn');
 var credentials = require('./credentials');
+var rename = require('./rename'); // projects or anything else can be renamed to merge into single group
 
 var config = {
   inbox: credentials.inbox,
@@ -28,6 +29,7 @@ var config = {
     host: credentials.host,
     port: 993,
     tls: true,
+    tlsOptions: { rejectUnauthorized: false },
     authTimeout: 10000
   }
 };
@@ -100,6 +102,9 @@ imaps.connect(config).then(function (connection) {
               return;
             d[0] = d[0].replace("'", "");
             d[0] = d[0].replace('"', "");
+            // rename
+            if (typeof rename[set] !== 'undefined' && typeof rename[set][d[0]] !== 'undefined') d[0] = rename[set][d[0]];
+
             var q = d[1];
             q = q.replace("hrs", "*60*60+");
             q = q.replace("hr", "*60*60+");
@@ -108,12 +113,12 @@ imaps.connect(config).then(function (connection) {
             q = q.replace("secs", "+");
             q = q.replace("sec", "+");
             q += "0";
-            d[1] = math.eval(q) / 3600;
+            d[1] = math.evaluate(q) / 3600;
             if (typeof data[set][d[0]] === 'undefined') data[set][d[0]] = {
               total: 0
             };
             data[set][d[0]].total += d[1];
-            data[set][d[0]][w] = d[1];
+            data[set][d[0]][w] = (data[set][d[0]][w] || 0) + d[1];
             if (config.debug) console.log("\t" + d[0] + ":" + d[1]);
           })
         });

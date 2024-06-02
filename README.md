@@ -11,5 +11,15 @@ module.exports = {
 }
 ```
 
+Projects (or other sets) can be merge into single group using rename.js. Below is an example of how 3 diffrent projects can be merge into single one.
+```
+module.exports = {
+    "Projects" : {
+      "megaopus-front" : "megaopus",
+      "megaopus-back" : "megaopus",
+      "megaopus-db" : "megaopus",
+   }
+}
+```
 In addition projects can be filtered by total time spent. This is set via ```config.filterMinimalHours``` variable.
 
