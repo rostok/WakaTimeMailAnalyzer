@@ -7,9 +7,25 @@
   <script src='https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.js'></script>
   <script src='data.js'></script>
   <script type="text/javascript">
+    // Deep copy original data
+    const orig = JSON.parse(JSON.stringify(data));
+    let curKey = "Projects";
+
+    // Recalculate totals
+    const recalc = (d) => Object.values(d).forEach(rows => {
+      const sums = rows.slice(1).reduce((acc, row) => row.map((v, i) => (acc[i] || 0) + (parseFloat(v)||0)), []);
+      rows[0] = rows[0].map((h, i) => i === 0 ? h : `${h.split(':')[0].trim()} : ${+sums[i].toFixed(1)}`);
+      // console.log(rows[0].slice(1).join("\n"));
+    });
+
+    recalc(data);
+
     var chart;
 
     function plotdata(data) {
+      // Clear previous chart to prevent overwriting issues with NVD3
+      d3.select('#chart_div svg').selectAll("*").remove();
+
       var arr = [];
       var tickVals = [];
       for (var ki = 1; ki < data[0].length; ki++) {
@@ -26,7 +42,7 @@
       }
 
       function patience() {
-        if (typeof chart !== 'undefined') {
+        if (typeof chart !== 'undefined' && chart.update) {
           chart.xAxis.rotateLabels(-30);
           chart.update();
         } else
@@ -46,7 +62,6 @@
         chart.xAxis
           //.tickValues(tickVals)
           .tickFormat(function (d) {
-            //console.log("xAxis",d); 
             return d3.time.format('%Y-%m-%d')(new Date(d))
           });
         chart.yAxis
@@ -63,19 +78,45 @@
       });
 
     }
-    plotdata(data.Projects);
+    // Defer initial plot until DOM is ready or just call it here as in original
+    // plotdata(data[curKey]); 
   </script>
 </head>
 
 <body>
-  <div id='sets'></div>
+  <div id='sets'><b>Sets: </b></div>
+  <div id='years'><b>Years: </b></div>
+
   <script>
+    // Sets Links
     Object.keys(data).forEach(k=>{
-      var a = $(`<a href=#>${k}</a>`)
-      $(a).click(()=>plotdata(data[k]));
+      var a = $(`<a href=#>${k}</a>`).click(e => {
+        e.preventDefault();
+        curKey = k;
+        plotdata(data[k]);
+      });
       $("div#sets").append(a).append(" / ");
-    })
+    });
+
+    // Years Links
+    const years = ['ALL', ...new Set(orig.Projects.slice(1).map(r => r[0].split('-')[0]))].sort();
+    years.forEach(y => {
+      var a = $(`<a href=#>${y}</a>`).click(e => {
+        e.preventDefault();
+        const clean = JSON.parse(JSON.stringify(orig));
+        Object.keys(data).forEach(k => {
+           data[k] = y === 'ALL' ? clean[k] : [clean[k][0], ...clean[k].slice(1).filter(r => r[0].startsWith(y))];
+        });
+        recalc(data);
+        plotdata(data[curKey]);
+      });
+      $("div#years").append(a).append(" / ");
+    });
+
+    // Initial plot
+    plotdata(data[curKey]);
   </script>
+
   <div id='chart_div' style='width: 100%'><svg style='background-color:#eee;width:100%;height:500px'></svg></div>
   <div id='summary'></div>
 </body>

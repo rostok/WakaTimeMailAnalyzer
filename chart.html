@@ -1,56 +1,77 @@
 <html>
-
 <head>
   <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
   <script src="https://www.gstatic.com/charts/loader.js"></script>
   <script src='data.js'></script>
   <script type="text/javascript">
+    // Deep copy original data to allow resetting
+    const orig = JSON.parse(JSON.stringify(data));
+    let curKey = "Projects"; // Track current set
+
+    // Reusable function to recalculate totals in headers
+    const recalc = (d) => Object.values(d).forEach(rows => {
+      const sums = rows.slice(1).reduce((acc, row) => row.map((v, i) => (acc[i] || 0) + (parseFloat(v)||0)), []);
+      rows[0] = rows[0].map((h, i) => i === 0 ? h : `${h.split(':')[0].trim()} : ${+sums[i].toFixed(1)}`);
+    });
+
+    // Initial calculation
+    recalc(data);
+
     var chart;
-
-    function plotdata(data) {
-      google.charts.load('current', {
-        'packages': ['corechart']
-      });
-      google.charts.setOnLoadCallback(drawChart);
-
-      function drawChart() {
-        var vdata = google.visualization.arrayToDataTable(data);
-
+    function plotdata(rows) {
+      google.charts.load('current', { 'packages': ['corechart'] });
+      google.charts.setOnLoadCallback(() => {
+        var vdata = google.visualization.arrayToDataTable(rows);
         var options = {
-          title: 'WakaTime projects',
-          //hAxis: {title: 'Week',  titleTextStyle: {color: '#333'}},
-          'chartArea': {
-            left: '5%',
-            'width': '75%',
-            'height': '80%'
-          },
+          title: 'WakaTime ' + curKey,
+          chartArea: { left: '5%', width: '75%', height: '80%' },
           focusTarget: 'category',
-          vAxis: {
-            minValue: 0
-          },
+          vAxis: { minValue: 0 },
           isStacked: true
         };
-
         chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
         chart.draw(vdata, options);
-      }
+      });
     }
 
-    plotdata(data.Projects);
+    plotdata(data[curKey]);
   </script>
 </head>
 
 <body>
-  <div id='sets'></div>
+  <div id='sets'><b>Sets: </b></div>
+  <div id='years'><b>Years: </b></div>
+  
   <script>
-    Object.keys(data).forEach(k=>{
-      var a = $(`<a href=#>${k}</a>`)
-      $(a).click(()=>plotdata(data[k]));
+    // Generate Set Links
+    Object.keys(data).forEach(k => {
+      var a = $(`<a href=#>${k}</a>`).click((e) => {
+        e.preventDefault();
+        curKey = k; 
+        plotdata(data[k]); 
+      });
       $("div#sets").append(a).append(" / ");
-    })
+    });
+
+    // Generate Year Links
+    const years = ['ALL', ...new Set(orig.Projects.slice(1).map(r => r[0].split('-')[0]))].sort();
+    years.forEach(y => {
+      var a = $(`<a href=#>${y}</a>`).click((e) => {
+        e.preventDefault();
+        // Reset data from original
+        const clean = JSON.parse(JSON.stringify(orig));
+        Object.keys(data).forEach(k => {
+          // Filter rows if not ALL, keep header
+          data[k] = y === 'ALL' ? clean[k] : [clean[k][0], ...clean[k].slice(1).filter(r => r[0].startsWith(y))];
+        });
+        recalc(data); // Recalculate headers
+        plotdata(data[curKey]); // Replot current view
+      });
+      $("div#years").append(a).append(" / ");
+    });
   </script>
+
   <div id="chart_div" style="width: 100%; height: 800px;"></div>
   <div id="summary"></div>
 </body>
-
 </html>
